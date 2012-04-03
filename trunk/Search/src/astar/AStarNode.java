@@ -9,7 +9,10 @@ import java.util.ArrayList;
 public class AStarNode implements Comparable<AStarNode>
 {
     public static int MIN_COST = 10;
-    public static int MIN_DIAGONALCOST = 10;
+    public static int MIN_DIAGONAL_COST = 14;
+    public static int NONWALKABLE_COST = 999999999;
+    public enum AlgorithmType { ASTAR, DIJKSTRA, GREEDY }
+    public static AlgorithmType algorithmType = AlgorithmType.ASTAR;
     
     private int x;
     private int y;
@@ -41,7 +44,12 @@ public class AStarNode implements Comparable<AStarNode>
     @Override
     public int compareTo(AStarNode o)
     {
-        return f - o.f;
+        if (algorithmType == AlgorithmType.ASTAR)
+            return f - o.f;
+        else if (algorithmType == AlgorithmType.DIJKSTRA)
+            return g - o.g;
+        else
+            return h - o.h;        
     }
     
     public ArrayList<AStarNode> generateChildren(AStarNode[][] nodes)
@@ -112,11 +120,11 @@ public class AStarNode implements Comparable<AStarNode>
         
         if (Math.abs(endNode.x - x) > Math.abs(endNode.y - y))
         {
-            h = Math.abs(endNode.y - y) * MIN_DIAGONALCOST + (Math.abs(endNode.x - x) - Math.abs(endNode.y - y)) * MIN_COST;
+            h = Math.abs(endNode.y - y) * MIN_DIAGONAL_COST + (Math.abs(endNode.x - x) - Math.abs(endNode.y - y)) * MIN_COST;
         }
         else
         {
-            h = Math.abs(endNode.x - x) * MIN_DIAGONALCOST + (Math.abs(endNode.y - y) - Math.abs(endNode.x - x)) * MIN_COST;
+            h = Math.abs(endNode.x - x) * MIN_DIAGONAL_COST + (Math.abs(endNode.y - y) - Math.abs(endNode.x - x)) * MIN_COST;
         }
         
         f = g + h;

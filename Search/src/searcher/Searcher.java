@@ -157,7 +157,7 @@ public class Searcher {
         
             world.save(filename + "_d");
             if (showSolutions) {
-                world.show(filename + " Dijkstra", 15, 700, 200);
+                world.show(filename + " Dijkstra", 10, 1400, 15);
             }
         }
 
@@ -199,7 +199,7 @@ public class Searcher {
 
             world.save(filename + "_a");
             if (showSolutions) {
-                world.show(filename + " A*", 15, 1220, 200);
+                world.show(filename + " A*", 10, 1400, 355);
             }
         }
 
@@ -241,7 +241,7 @@ public class Searcher {
 
             world.save(filename + "_g");
             if (showSolutions) {
-                world.show(filename + " Greedy Search", 10, 0, 340);
+                world.show(filename + " Greedy Search", 10, 1400, 695);
             }
         }
 

@@ -146,7 +146,7 @@ public class Searcher {
 
             // Set results.
             AlgorithmResults dijsktra = new AlgorithmResults();
-            dijsktra.setBestPathCost(endNode.getF());
+            dijsktra.setBestPathCost(path.size() > 0 ? endNode.getF() : -1);
             dijsktra.setNodesExpanded(astar.getNodesExpanded());
             dijsktra.setSolutionPath(path);
             info.setDijkstra(dijsktra);
@@ -188,7 +188,7 @@ public class Searcher {
 
             // Set results.
             AlgorithmResults aStar = new AlgorithmResults();
-            aStar.setBestPathCost(endNode.getF());
+            aStar.setBestPathCost(path.size() > 0 ? endNode.getF() : -1);
             aStar.setNodesExpanded(astar.getNodesExpanded());
             aStar.setSolutionPath(path);
             info.setaStar(aStar);
@@ -230,7 +230,7 @@ public class Searcher {
 
             // Set results.
             AlgorithmResults greedy = new AlgorithmResults();
-            greedy.setBestPathCost(endNode.getF());
+            greedy.setBestPathCost(path.size() > 0 ? endNode.getF() : -1);
             greedy.setNodesExpanded(astar.getNodesExpanded());
             greedy.setSolutionPath(path);
             info.setGreedySearch(greedy);

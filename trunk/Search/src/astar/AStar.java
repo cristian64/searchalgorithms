@@ -88,7 +88,7 @@ public class AStar
                     else
                     {
                         // If the node was already open, then it's check if this new G is better than the previous one.
-                        if (i.getG() > i.getPossibleG(currentNode))
+                        if (AStarNode.algorithmType != AStarNode.AlgorithmType.GREEDY && i.getG() > i.getPossibleG(currentNode))
                         {
                             openList.remove(i);
                             i.setParentNode(currentNode);

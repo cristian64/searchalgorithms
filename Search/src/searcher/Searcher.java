@@ -3,6 +3,7 @@ package searcher;
 import astar.AStar;
 import astar.AStarNode;
 import java.util.ArrayList;
+import tileworld.I_Cost;
 import tileworld.I_TileWorld;
 import tileworld.TileType;
 import tileworld.TileWorld;
@@ -113,67 +114,136 @@ public class Searcher {
         ExperimentResults info = new ExperimentResults();
         I_TileWorld world;
 
-        // Dijkstra
-        /*world = new TileWorld(filename + ".png");        
-        AlgorithmResults dijkstra = null;
-        info.setDijkstra(dijkstra);
-        world.save(filename + "_d");
-        if (showSolutions) {
-            world.show(filename + " Dijkstra", 32, 0, 0);
-        }*/
-
-        // A*
-        world = new TileWorld(filename + ".png");
+        // Some static field for the algorithm.
+        AStarNode.MIN_COST = I_Cost.ROAD_COST;
+        AStarNode.MIN_DIAGONAL_COST = I_Cost.ROAD_DIAGONAL_COST;
+        AStarNode.NONWALKABLE_COST = I_Cost.INFINITY;
         
-        // Set parameters for the algorithm.
-        AStarNode startNode = null;
-        AStarNode endNode = null;
-        AStarNode nodes[][] = new AStarNode[world.getHeight()][world.getWidth()];
-        for (int i = 0; i < nodes.length; i++)
+        // Dijkstra
         {
-            for (int j = 0; j < nodes[i].length; j++)
+            world = new TileWorld(filename + ".png");   
+        
+            // Prepare parameters for the algorithm.
+            AStarNode.algorithmType = AStarNode.AlgorithmType.DIJKSTRA;
+            AStarNode startNode = null;
+            AStarNode endNode = null;
+            AStarNode nodes[][] = new AStarNode[world.getHeight()][world.getWidth()];
+            for (int i = 0; i < nodes.length; i++)
             {
-                nodes[i][j] = new AStarNode(j, i, world.getTileType(j, i).getCost(), world.getTileType(j, i).getDiagonalCost());
-                if (world.getTileType(j, i) == TileType.START)
-                    startNode = nodes[i][j];
-                else if (world.getTileType(j, i) == TileType.END)
-                    endNode = nodes[i][j];
+                for (int j = 0; j < nodes[i].length; j++)
+                {
+                    nodes[i][j] = new AStarNode(j, i, world.getTileType(j, i).getCost(), world.getTileType(j, i).getDiagonalCost());
+                    if (world.getTileType(j, i) == TileType.START)
+                        startNode = nodes[i][j];
+                    else if (world.getTileType(j, i) == TileType.END)
+                        endNode = nodes[i][j];
+                }
+            }
+
+            // Instanciate and run the algorithm.
+            AStar astar = new AStar(nodes, startNode, endNode);
+            ArrayList<Integer> path = astar.findPath();
+
+            // Set results.
+            AlgorithmResults dijsktra = new AlgorithmResults();
+            dijsktra.setBestPathCost(endNode.getF());
+            dijsktra.setNodesExpanded(astar.getNodesExpanded());
+            dijsktra.setSolutionPath(path);
+            info.setDijkstra(dijsktra);
+
+            // Draw path on the bitmap.
+            for (int i = 0; i < path.size(); i += 2)
+                world.setTileType(path.get(i), path.get(i + 1), TileType.PATH);
+        
+            world.save(filename + "_d");
+            if (showSolutions) {
+                world.show(filename + " Dijkstra", 15, 700, 200);
             }
         }
-        
-        // Instanciate and run the algorithm.
-        AStar astar = new AStar(nodes, startNode, endNode);
-        ArrayList<AStarNode> path = astar.findPath();
-        
-        // Stablish results.
-        AlgorithmResults aStar = new AlgorithmResults();
-        aStar.setBestPathCost(path.get(path.size() - 1).getF());
-        int expanded = 0;
-        for (int i = 0; i < nodes.length; i++)
-            for (int j = 0; j < nodes[i].length; j++)
-                if (nodes[i][j].isClosed())
-                    expanded++;
-        aStar.setNodesExpanded(expanded);
-        //TODO: set path in aStar variable.
-        info.setaStar(aStar);
-        
-        // Draw path on the bitmap.
-        for (AStarNode i : path)
-            world.setTileType(i.getX(), i.getY(), TileType.PATH);
-        
-        world.save(filename + "_a");
-        if (showSolutions) {
-            world.show(filename + " A*", 15, 1220, 200);
+
+        // A*
+        {
+            world = new TileWorld(filename + ".png");
+
+            // Prepare parameters for the algorithm.
+            AStarNode.algorithmType = AStarNode.AlgorithmType.ASTAR;
+            AStarNode startNode = null;
+            AStarNode endNode = null;
+            AStarNode nodes[][] = new AStarNode[world.getHeight()][world.getWidth()];
+            for (int i = 0; i < nodes.length; i++)
+            {
+                for (int j = 0; j < nodes[i].length; j++)
+                {
+                    nodes[i][j] = new AStarNode(j, i, world.getTileType(j, i).getCost(), world.getTileType(j, i).getDiagonalCost());
+                    if (world.getTileType(j, i) == TileType.START)
+                        startNode = nodes[i][j];
+                    else if (world.getTileType(j, i) == TileType.END)
+                        endNode = nodes[i][j];
+                }
+            }
+
+            // Instanciate and run the algorithm.
+            AStar astar = new AStar(nodes, startNode, endNode);
+            ArrayList<Integer> path = astar.findPath();
+
+            // Set results.
+            AlgorithmResults aStar = new AlgorithmResults();
+            aStar.setBestPathCost(endNode.getF());
+            aStar.setNodesExpanded(astar.getNodesExpanded());
+            aStar.setSolutionPath(path);
+            info.setaStar(aStar);
+
+            // Draw path on the bitmap.
+            for (int i = 0; i < path.size(); i += 2)
+                world.setTileType(path.get(i), path.get(i + 1), TileType.PATH);
+
+            world.save(filename + "_a");
+            if (showSolutions) {
+                world.show(filename + " A*", 15, 1220, 200);
+            }
         }
 
         // Greedy Search
-        /*world = new TileWorld(filename + ".png");
-        AlgorithmResults greedySearch = null; // TODO assignment: make here a call to your method to perform Greddy Search and collect the results
-        info.setGreedySearch(greedySearch);
-        world.save(filename + "_g");
-        if (showSolutions) {
-            world.show(filename + " Greedy Search", 10, 0, 340);
-        }*/
+        {
+            world = new TileWorld(filename + ".png");
+
+            // Prepare parameters for the algorithm.
+            AStarNode.algorithmType = AStarNode.AlgorithmType.GREEDY;
+            AStarNode startNode = null;
+            AStarNode endNode = null;
+            AStarNode nodes[][] = new AStarNode[world.getHeight()][world.getWidth()];
+            for (int i = 0; i < nodes.length; i++)
+            {
+                for (int j = 0; j < nodes[i].length; j++)
+                {
+                    nodes[i][j] = new AStarNode(j, i, world.getTileType(j, i).getCost(), world.getTileType(j, i).getDiagonalCost());
+                    if (world.getTileType(j, i) == TileType.START)
+                        startNode = nodes[i][j];
+                    else if (world.getTileType(j, i) == TileType.END)
+                        endNode = nodes[i][j];
+                }
+            }
+
+            // Instanciate and run the algorithm.
+            AStar astar = new AStar(nodes, startNode, endNode);
+            ArrayList<Integer> path = astar.findPath();
+
+            // Set results.
+            AlgorithmResults greedy = new AlgorithmResults();
+            greedy.setBestPathCost(endNode.getF());
+            greedy.setNodesExpanded(astar.getNodesExpanded());
+            greedy.setSolutionPath(path);
+            info.setGreedySearch(greedy);
+
+            // Draw path on the bitmap.
+            for (int i = 0; i < path.size(); i += 2)
+                world.setTileType(path.get(i), path.get(i + 1), TileType.PATH);
+
+            world.save(filename + "_g");
+            if (showSolutions) {
+                world.show(filename + " Greedy Search", 10, 0, 340);
+            }
+        }
 
         return info;
     }

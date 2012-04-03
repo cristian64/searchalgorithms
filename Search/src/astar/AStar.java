@@ -1,7 +1,6 @@
 package astar;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.PriorityQueue;
 
 /**
@@ -13,7 +12,7 @@ public class AStar
     private AStarNode[][] nodes;
     private AStarNode startNode;
     private AStarNode endNode;
-    public PriorityQueue<AStarNode> openList;
+    private int nodesExpanded;
     
     public AStar(AStarNode[][] nodes, AStarNode startNode, AStarNode endNode)
     {
@@ -26,24 +25,31 @@ public class AStar
                 nodes[i][j].setEndNode(endNode);
     }
     
-    public ArrayList<AStarNode> findPath()
+    public int getNodesExpanded()
     {
-        openList = new PriorityQueue<AStarNode>();
+        return nodesExpanded;
+    }
+    
+    public ArrayList<Integer> findPath()
+    {
+        PriorityQueue<AStarNode> openList = new PriorityQueue<AStarNode>();
         AStarNode currentNode;
         openList.add(startNode);
         startNode.setOpen(true);
         boolean pathFound = false;
         
+        nodesExpanded = 0;
         while (!openList.isEmpty() && !pathFound)
         {
             currentNode = openList.poll();
             currentNode.setClosed(true);
             currentNode.setOpen(false);
+            nodesExpanded++;
             
             ArrayList<AStarNode> children = currentNode.generateChildren(nodes);
             for (AStarNode i : children)
             {
-                if (!i.isClosed())
+                if (!i.isClosed() && i.getCost() != AStarNode.NONWALKABLE_COST)
                 {
                     if (!i.isOpen())
                     {
@@ -72,11 +78,12 @@ public class AStar
         
         if (pathFound)
         {
-            ArrayList<AStarNode> path = new ArrayList<AStarNode>();
+            ArrayList<Integer> path = new ArrayList<Integer>();
             AStarNode aux = endNode;
             while (aux != null)
             {
-                path.add(0, aux);
+                path.add(0, aux.getY());
+                path.add(0, aux.getX());
                 aux = aux.getParentNode();
             }
             return path;

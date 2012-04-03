@@ -1,8 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package astar;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -10,6 +8,9 @@ package astar;
  */
 public class AStarNode implements Comparable<AStarNode>
 {
+    public static int MIN_COST = 10;
+    public static int MIN_DIAGONALCOST = 10;
+    
     private int x;
     private int y;
     private int cost;
@@ -19,6 +20,8 @@ public class AStarNode implements Comparable<AStarNode>
     private int f;
     private int g;
     private int h;
+    private boolean open;
+    private boolean closed;
     
     public AStarNode(int x, int y, int cost, int diagonalCost)
     {
@@ -31,12 +34,39 @@ public class AStarNode implements Comparable<AStarNode>
         f = 0;
         g = 0;
         h = 0;
+        open = false;
+        closed = false;
     }
 
     @Override
     public int compareTo(AStarNode o)
     {
         return f - o.f;
+    }
+    
+    public ArrayList<AStarNode> generateChildren(AStarNode[][] nodes)
+    {
+        ArrayList<AStarNode> children = new ArrayList<AStarNode>();
+        
+        if (x + 1 < nodes[0].length)
+            children.add(nodes[y][x + 1]);
+        if (y + 1 < nodes.length)
+            children.add(nodes[y + 1][x]);
+        if (x - 1 >= 0)
+            children.add(nodes[y][x - 1]);
+        if (y - 1 >= 0)
+            children.add(nodes[y - 1][x]);
+        
+        if (x + 1 < nodes[0].length && y + 1 < nodes.length)
+            children.add(nodes[y + 1][x + 1]);
+        if (x + 1 < nodes[0].length && y - 1 >= 0)
+            children.add(nodes[y - 1][x + 1]);
+        if (x - 1 >= 0 && y + 1 < nodes.length)
+            children.add(nodes[y + 1][x - 1]);
+        if (x - 1 >= 0 &&  y - 1 >= 0)
+            children.add(nodes[y - 1][x - 1]);
+        
+        return children;
     }
     
     public int getX()
@@ -66,6 +96,11 @@ public class AStarNode implements Comparable<AStarNode>
         f = g + h;
     }
     
+    public int getPossibleG(AStarNode parentNode)
+    {
+        return parentNode.g + ((parentNode.x == x || parentNode.y == y) ? cost : diagonalCost);
+    }
+    
     public AStarNode getParentNode()
     {
         return parentNode;
@@ -74,7 +109,16 @@ public class AStarNode implements Comparable<AStarNode>
     public void setEndNode(AStarNode endNode)
     {
         this.endNode = endNode;
-        h = Math.abs(endNode.x - x) + Math.abs(endNode.y - y); //TODO take into account the heuristic
+        
+        if (Math.abs(endNode.x - x) > Math.abs(endNode.y - y))
+        {
+            h = Math.abs(endNode.y - y) * MIN_DIAGONALCOST + (Math.abs(endNode.x - x) - Math.abs(endNode.y - y)) * MIN_COST;
+        }
+        else
+        {
+            h = Math.abs(endNode.x - x) * MIN_DIAGONALCOST + (Math.abs(endNode.y - y) - Math.abs(endNode.x - x)) * MIN_COST;
+        }
+        
         f = g + h;
     }
     
@@ -96,5 +140,25 @@ public class AStarNode implements Comparable<AStarNode>
     public int getH()
     {
         return h;
+    }
+    
+    public boolean isOpen()
+    {
+        return open;
+    }
+    
+    public void setOpen(boolean value)
+    {
+        open = value;
+    }
+    
+    public boolean isClosed()
+    {
+        return closed;
+    }
+    
+    public void setClosed(boolean value)
+    {
+        closed = value;
     }
 }

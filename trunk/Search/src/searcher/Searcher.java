@@ -1,6 +1,10 @@
 package searcher;
 
+import astar.AStar;
+import astar.AStarNode;
+import java.util.ArrayList;
 import tileworld.I_TileWorld;
+import tileworld.TileType;
 import tileworld.TileWorld;
 
 /**
@@ -110,31 +114,66 @@ public class Searcher {
         I_TileWorld world;
 
         // Dijkstra
-        world = new TileWorld(filename + ".png");
-        AlgorithmResults dijkstra = null; // TODO assignment: make here a call to your method to perform dijkstra and collect the results
+        /*world = new TileWorld(filename + ".png");        
+        AlgorithmResults dijkstra = null;
         info.setDijkstra(dijkstra);
         world.save(filename + "_d");
         if (showSolutions) {
-            world.show(filename + " Dijkstra", 10, 0, 0);
-        }
+            world.show(filename + " Dijkstra", 32, 0, 0);
+        }*/
 
         // A*
         world = new TileWorld(filename + ".png");
-        AlgorithmResults aStar = null; // TODO assignment: make here a call to your method to perform A* and collect the results
+        
+        // Set parameters for the algorithm.
+        AStarNode startNode = null;
+        AStarNode endNode = null;
+        AStarNode nodes[][] = new AStarNode[world.getHeight()][world.getWidth()];
+        for (int i = 0; i < nodes.length; i++)
+        {
+            for (int j = 0; j < nodes[i].length; j++)
+            {
+                nodes[i][j] = new AStarNode(j, i, world.getTileType(j, i).getCost(), world.getTileType(j, i).getDiagonalCost());
+                if (world.getTileType(j, i) == TileType.START)
+                    startNode = nodes[i][j];
+                else if (world.getTileType(j, i) == TileType.END)
+                    endNode = nodes[i][j];
+            }
+        }
+        
+        // Instanciate and run the algorithm.
+        AStar astar = new AStar(nodes, startNode, endNode);
+        ArrayList<AStarNode> path = astar.findPath();
+        
+        // Stablish results.
+        AlgorithmResults aStar = new AlgorithmResults();
+        aStar.setBestPathCost(path.get(path.size() - 1).getF());
+        int expanded = 0;
+        for (int i = 0; i < nodes.length; i++)
+            for (int j = 0; j < nodes[i].length; j++)
+                if (nodes[i][j].isClosed())
+                    expanded++;
+        aStar.setNodesExpanded(expanded);
+        //TODO: set path in aStar variable.
         info.setaStar(aStar);
+        
+        // Draw path on the bitmap.
+        for (AStarNode i : path)
+            world.setTileType(i.getX(), i.getY(), TileType.PATH);
+        
         world.save(filename + "_a");
         if (showSolutions) {
-            world.show(filename + " A*", 10, 420, 0);
+            world.show(filename + " A*", 15, 1220, 200);
         }
 
         // Greedy Search
-        world = new TileWorld(filename + ".png");
+        /*world = new TileWorld(filename + ".png");
         AlgorithmResults greedySearch = null; // TODO assignment: make here a call to your method to perform Greddy Search and collect the results
         info.setGreedySearch(greedySearch);
         world.save(filename + "_g");
         if (showSolutions) {
             world.show(filename + " Greedy Search", 10, 0, 340);
-        }
+        }*/
 
         return info;
     }

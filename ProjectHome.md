@@ -1,0 +1,1 @@
+Implementation of A`*`, Dijkstra and Greedy search algorithms in Java. It provides a framework to test the algorithms with PNG images.
